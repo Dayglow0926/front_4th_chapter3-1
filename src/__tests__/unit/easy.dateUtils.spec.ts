@@ -241,7 +241,9 @@ describe('formatWeek', () => {
 });
 
 describe('formatMonth', () => {
-  it("2024년 7월 10일을 '2024년 7월'로 반환한다", () => {});
+  it("2024년 7월 10일을 '2024년 7월'로 반환한다", () => {
+    expect(formatMonth(new Date('2024-7-10'))).toBe('2024년 7월');
+  });
 });
 
 describe('isDateInRange', () => {
