@@ -310,15 +310,26 @@ describe('fillZero', () => {
 
   test('value가 지정된 size보다 큰 자릿수를 가지면 원래 값을 그대로 반환한다', () => {
     expect(fillZero(123456, 5)).toBe('123456');
+    expect(fillZero(123456, 4)).toBe('123456');
+    expect(fillZero(123456, 3)).toBe('123456');
+    expect(fillZero(123456, 2)).toBe('123456');
   });
 });
 
 describe('formatDate', () => {
-  it('날짜를 YYYY-MM-DD 형식으로 포맷팅한다', () => {});
+  it('날짜를 YYYY-MM-DD 형식으로 포맷팅한다', () => {
+    expect(formatDate(new Date('2025-02-05'))).toBe('2025-02-05');
+  });
 
-  it('day 파라미터가 제공되면 해당 일자로 포맷팅한다', () => {});
+  it('day 파라미터가 제공되면 해당 일자로 포맷팅한다', () => {
+    expect(formatDate(new Date('2025-02-05'), 10)).toBe('2025-02-10');
+  });
 
-  it('월이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {});
+  it('월이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {
+    expect(formatDate(new Date('2025-2-05'))).toBe('2025-02-05');
+  });
 
-  it('일이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {});
+  it('일이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {
+    expect(formatDate(new Date('2025-02-5'))).toBe('2025-02-05');
+  });
 });
