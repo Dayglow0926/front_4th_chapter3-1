@@ -84,5 +84,19 @@ describe('getUpcomingEvents', () => {
 });
 
 describe('createNotificationMessage', () => {
-  it('올바른 알림 메시지를 생성해야 한다', () => {});
+  it('올바른 알림 메시지를 생성해야 한다', () => {
+    const event: Event = {
+      id: '4',
+      title: '이벤트 4',
+      date: '2025-01-01',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '기존 팀 미팅BB',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    };
+    expect(createNotificationMessage(event)).toBe('10분 후 이벤트 4 일정이 시작됩니다.');
+  });
 });
