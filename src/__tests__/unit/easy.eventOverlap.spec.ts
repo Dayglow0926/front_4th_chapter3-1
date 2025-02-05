@@ -25,11 +25,65 @@ describe('parseDateTime', () => {
 });
 
 describe('convertEventToDateRange', () => {
-  it('일반적인 이벤트를 올바른 시작 및 종료 시간을 가진 객체로 변환한다', () => {});
+  it('일반적인 이벤트를 올바른 시작 및 종료 시간을 가진 객체로 변환한다', () => {
+    const event: Event = {
+      id: '1',
+      title: '기존 회의',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    };
 
-  it('잘못된 날짜 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {});
+    expect(convertEventToDateRange(event)).toEqual({
+      end: new Date(`2024-10-15 ${event.endTime}`),
+      start: new Date(`2024-10-15 ${event.startTime}`),
+    });
+  });
 
-  it('잘못된 시간 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {});
+  it('잘못된 날짜 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {
+    const event: Event = {
+      id: '1',
+      title: '기존 회의',
+      date: '2024-10-15-',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    };
+
+    expect(convertEventToDateRange(event)).toEqual({
+      end: new Date('invalid Date'),
+      start: new Date('invalid Date'),
+    });
+  });
+
+  it('잘못된 시간 형식의 이벤트에 대해 Invalid Date를 반환한다', () => {
+    const event: Event = {
+      id: '1',
+      title: '기존 회의',
+      date: '2024-10-15',
+      startTime: '09:00:--',
+      endTime: '10:00:--',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    };
+
+    expect(convertEventToDateRange(event)).toEqual({
+      end: new Date('invalid Date'),
+      start: new Date('invalid Date'),
+    });
+  });
 });
 
 describe('isOverlapping', () => {
