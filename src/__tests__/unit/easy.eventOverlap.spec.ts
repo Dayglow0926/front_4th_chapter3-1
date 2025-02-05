@@ -145,7 +145,87 @@ describe('isOverlapping', () => {
 });
 
 describe('findOverlappingEvents', () => {
-  it('새 이벤트와 겹치는 모든 이벤트를 반환한다', () => {});
+  const events: Event[] = [
+    {
+      id: '1',
+      title: '첫번째 회의',
+      date: '2024-10-15',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '두번째 회의',
+      date: '2024-10-15',
+      startTime: '13:00',
+      endTime: '14:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+    {
+      id: '3',
+      title: '세번째 회의',
+      date: '2024-10-17',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+    {
+      id: '4',
+      title: '네번째 회의',
+      date: '2024-10-18',
+      startTime: '11:00',
+      endTime: '12:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+  ];
+  it('새 이벤트와 겹치는 모든 이벤트를 반환한다', () => {
+    const event: Event = {
+      id: '5',
+      title: '다섯번째 회의',
+      date: '2024-10-15',
+      startTime: '10:00',
+      endTime: '15:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    };
 
-  it('겹치는 이벤트가 없으면 빈 배열을 반환한다', () => {});
+    expect(findOverlappingEvents(event, events)).toEqual([events[0], events[1]]);
+  });
+
+  it('겹치는 이벤트가 없으면 빈 배열을 반환한다', () => {
+    const event: Event = {
+      id: '6',
+      title: '여섯번째 회의',
+      date: '2024-10-19',
+      startTime: '10:00',
+      endTime: '15:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    };
+
+    expect(findOverlappingEvents(event, events)).toEqual([]);
+  });
 });
