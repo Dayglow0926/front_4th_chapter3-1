@@ -309,9 +309,127 @@ describe('검색 기능', () => {
 });
 
 describe('일정 충돌', () => {
-  it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {});
+  it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {
+    const event: EventForm = {
+      title: '새로운 팀 회의',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    };
 
-  it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {});
+    setupMockHandlerCreation(events as Event[]);
+
+    renderApp();
+
+    const titleInput = screen.getByLabelText('제목');
+    const dateInput = screen.getByLabelText('날짜');
+    const startTimeInput = screen.getByLabelText('시작 시간');
+    const endTimeInput = screen.getByLabelText('종료 시간');
+    const desciptionInput = screen.getByLabelText('설명');
+    const locationInput = screen.getByLabelText('위치');
+    const categorySelect = screen.getByLabelText('카테고리');
+    const repeatScheduleCheckBox = screen.getByLabelText('반복 일정');
+    const notificationSelect = screen.getByLabelText('알림 설정');
+    const repeatTypeSelect = screen.getByLabelText('반복 유형');
+    const repeatTntervalInput = screen.getByLabelText('반복 간격');
+    const repeatEndDateInput = screen.getByLabelText('반복 종료일');
+    const addScheduleButton = screen.getByTestId('event-submit-button');
+
+    await userEvent.type(titleInput, event.title);
+    await userEvent.type(dateInput, event.date);
+    await userEvent.type(startTimeInput, event.startTime);
+    await userEvent.type(endTimeInput, event.endTime);
+    await userEvent.type(desciptionInput, event.description);
+    await userEvent.type(locationInput, event.location);
+    await userEvent.selectOptions(categorySelect, event.category);
+    await userEvent.selectOptions(notificationSelect, String(event.notificationTime));
+    await userEvent.selectOptions(categorySelect, event.category);
+    await userEvent.click(repeatScheduleCheckBox);
+    // expect(repeatScheduleCheckBox).not.toBeChecked();
+    // expect(checkbox).toBeChecked();
+
+    if (repeatTypeSelect) {
+      await userEvent.selectOptions(repeatTypeSelect, 'daily');
+
+      await userEvent.type(repeatTntervalInput, String(event.repeat.interval));
+
+      if (event.repeat.endDate) {
+        await userEvent.type(repeatEndDateInput, String(event.repeat.endDate));
+      }
+    }
+
+    await userEvent.click(addScheduleButton);
+
+    expect(screen.getByText('일정 겹침 경고')).toBeInTheDocument();
+  });
+
+  it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {
+    const newEvents: Event[] = [
+      {
+        id: '1',
+        title: '기존회의',
+        date: '2024-10-17',
+        startTime: '13:00',
+        endTime: '14:00',
+        description: '기존 팀 미팅',
+        location: '회의실 B',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: '새로운 팀 회의',
+        date: '2024-10-17',
+        startTime: '11:00',
+        endTime: '12:00',
+        description: '기존 팀 미팅',
+        location: '회의실 B',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+    ];
+
+    setupMockHandlerUpdating(newEvents as Event[]);
+
+    renderApp();
+
+    const eventListContainer = screen.getByTestId('event-list');
+
+    await waitFor(async () => {
+      expect(await within(eventListContainer).findByText('기존회의')).toBeInTheDocument();
+      const editButton = within(eventListContainer).getAllByLabelText(/Edit event/i);
+      await userEvent.click(editButton[0]);
+    });
+
+    const startTimeInput = screen.getByLabelText('시작 시간');
+
+    const updateScheduleButton = screen.getByTestId('event-submit-button');
+
+    await userEvent.clear(startTimeInput);
+    await userEvent.type(startTimeInput, '11:00');
+
+    await userEvent.click(updateScheduleButton);
+    expect(screen.getByText('일정 겹침 경고')).toBeInTheDocument();
+  });
 });
 
-it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트가 노출된다', async () => {});
+it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트가 노출된다', async () => {
+  vi.setSystemTime(new Date('2024-10-15 8:50'));
+
+  renderApp();
+
+  const eventList = screen.getByTestId('event-list');
+
+  await waitFor(() => {
+    expect(within(eventList).getByText('기존 회의')).toBeInTheDocument();
+  });
+
+  expect(screen.getByText('10분 전')).toBeInTheDocument();
+});
