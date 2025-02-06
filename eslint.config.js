@@ -57,7 +57,6 @@ export default [
       react,
       'react-hooks': reactHooks,
       '@typescript-eslint': typescript,
-      compat,
       vitest,
       security,
       unicorn,
@@ -109,9 +108,6 @@ export default [
       'vitest/no-identical-title': 'error', // 동일한 테스트 제목 사용 금지 (e.g., 중복된 it 또는 describe 제목)
       'vitest/prefer-to-be': 'warn', // toEqual 대신 toBe 사용 권장 (엄격한 참조 비교)
       'vitest/valid-expect': 'error', // expect 사용 시 올바른 구문 준수 (e.g., 체인된 matcher 필수)
-
-      // 브라우저 호환성 (Compat) 규칙
-      'compat/compat': 'off', // 브라우저 호환성 문제 경고 끄기
 
       // 보안 관련 규칙 (Security)
       'security/detect-object-injection': 'off', // 객체 속성 주입 방지
