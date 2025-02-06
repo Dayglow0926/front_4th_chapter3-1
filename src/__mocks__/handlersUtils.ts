@@ -7,7 +7,29 @@ import { Event } from '../types';
 // ! 아래 이름을 사용하지 않아도 되니, 독립적이게 테스트를 구동할 수 있는 방법을 찾아보세요. 그리고 이 로직을 PR에 설명해주세요.
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {};
 
-export const setupMockHandlerUpdating = () => {};
+export const setupMockHandlerUpdating = (initEvents = [] as Event[]) => {
+  const mockEvents = [...initEvents];
+
+  server.use(
+    http.get(`/api/events`, () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.put('/api/events/:id', async ({ params, request }) => {
+      const eventId = params.id as string;
+      const updateEventData = (await request.json()) as Event;
+
+      const index = mockEvents.findIndex((event) => event.id === eventId);
+
+      if (index !== -1) {
+        mockEvents[index] = { ...mockEvents[index], ...updateEventData };
+      } else {
+        return HttpResponse.error();
+      }
+
+      return new HttpResponse();
+    })
+  );
+};
 
 export const setupMockHandlerDeletion = (initEvents = [] as Event[]) => {
   const mockEvents = [...initEvents];
