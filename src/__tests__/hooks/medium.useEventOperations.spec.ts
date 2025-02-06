@@ -6,11 +6,11 @@ import {
   setupMockHandlerDeletion,
   setupMockHandlerUpdating,
 } from '../../__mocks__/handlersUtils.ts';
+
 import { useEventOperations } from '../../hooks/useEventOperations.ts';
 import { server } from '../../setupTests.ts';
 import { Event, EventForm } from '../../types.ts';
 import { events } from '../../__mocks__/response/events.json';
-import { ac } from 'vitest/dist/chunks/reporters.D7Jzd9GS.js';
 
 // vi.fn : 가짜함수 생성 ( 모킹 )
 const fakeToast = vi.fn();
@@ -32,9 +32,11 @@ it('저장되어있는 초기 이벤트 데이터를 적절하게 불러온다',
 
 // import { useToast } from '@chakra-ui/react'; 확인
 it('정의된 이벤트 정보를 기준으로 적절하게 저장이 되고 toast가 정상적으로 호출된다.(저장)', async () => {
+  setupMockHandlerCreation(events as Event[]);
   const { result } = renderHook(() => useEventOperations(false));
 
-  const event: EventForm = {
+  const event: Event = {
+    id: '2',
     title: '뉴 이벤트 1',
     date: '2025-02-07',
     startTime: '11:00',
@@ -48,7 +50,7 @@ it('정의된 이벤트 정보를 기준으로 적절하게 저장이 되고 toa
 
   await act(async () => result.current.saveEvent(event));
 
-  expect(result.current.events).toEqual(events);
+  expect(result.current.events).toEqual([...events, event]);
 
   // toHaveBeenCalledWith 호출된 함수 인자가 동일한지 확인
   expect(fakeToast).toHaveBeenCalledWith({
@@ -60,6 +62,7 @@ it('정의된 이벤트 정보를 기준으로 적절하게 저장이 되고 toa
 });
 
 it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업데이트 되고 toast가 정상적으로 호출된다.(수정)", async () => {
+  setupMockHandlerUpdating(events as Event[]);
   const { result } = renderHook(() => useEventOperations(true));
   const endTime = '15:00';
 
@@ -83,13 +86,14 @@ it("새로 정의된 'title', 'endTime' 기준으로 적절하게 일정이 업�
 });
 
 it('존재하는 이벤트 삭제 시 에러없이 아이템이 삭제된다.', async () => {
+  setupMockHandlerDeletion(events as Event[]);
   const { result } = renderHook(() => useEventOperations(true));
 
   await act(async () => {
-    result.current.deleteEvent('2');
+    result.current.deleteEvent('1');
   });
 
-  expect(result.current.events).toEqual([events[0]]);
+  expect(result.current.events).toEqual([]);
   expect(fakeToast).toHaveBeenCalledWith({
     title: '일정이 삭제되었습니다.',
     status: 'info',
