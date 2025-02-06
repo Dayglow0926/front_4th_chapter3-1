@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act, waitFor } from '@testing-library/react';
+import { render, screen, within, act, waitFor, cleanup } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
@@ -15,16 +15,15 @@ import {
 } from '../__mocks__/handlersUtils';
 
 beforeEach(() => {
-  vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.setSystemTime(new Date('2024-10-01 8:50'));
 });
 
 afterEach(() => {
-  vi.clearAllMocks();
   vi.useRealTimers();
 });
 
 const renderApp = () => {
+  cleanup();
   return render(
     <ChakraProvider>
       <App />
