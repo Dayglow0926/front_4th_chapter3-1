@@ -13,6 +13,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 it('초기 상태에서는 알림이 없어야 한다', () => {
