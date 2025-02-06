@@ -1,16 +1,93 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act } from '@testing-library/react';
+import { render, screen, within, act, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
 
 import App from '../App';
 import { server } from '../setupTests';
-import { Event } from '../types';
+import { Event, EventForm } from '../types';
+
+beforeEach(() => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  vi.setSystemTime(new Date('2024-10-15 8:50'));
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
+  vi.useRealTimers();
+});
+
+const renderApp = () => {
+  return render(
+    <ChakraProvider>
+      <App />
+    </ChakraProvider>
+  );
+};
 
 describe('일정 CRUD 및 기본 기능', () => {
+  beforeEach(() => {
+    renderApp();
+  });
+
+  const event: EventForm = {
+    title: '뉴 이벤트 1',
+    date: '2024-10-16',
+    startTime: '11:00',
+    endTime: '12:00',
+    description: '기존 팀 미팅AA',
+    location: '회의실 B',
+    category: '업무',
+    repeat: { type: 'none', interval: 0 },
+    notificationTime: 10,
+  };
+
   it('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
     // ! HINT. event를 추가 제거하고 저장하는 로직을 잘 살펴보고, 만약 그대로 구현한다면 어떤 문제가 있을 지 고민해보세요.
+    const titleInput = screen.getByLabelText('제목');
+    const dateInput = screen.getByLabelText('날짜');
+    const startTimeInput = screen.getByLabelText('시작 시간');
+    const endTimeInput = screen.getByLabelText('종료 시간');
+    const desciptionInput = screen.getByLabelText('설명');
+    const locationInput = screen.getByLabelText('위치');
+    const categorySelect = screen.getByLabelText('카테고리');
+    const repeatScheduleCheckBox = screen.getByLabelText('반복 일정');
+    const notificationSelect = screen.getByLabelText('알림 설정');
+    const repeatTypeSelect = screen.getByLabelText('반복 유형');
+    const repeatTntervalInput = screen.getByLabelText('반복 간격');
+    const repeatEndDateInput = screen.getByLabelText('반복 종료일');
+    const addScheduleButton = screen.getByTestId('event-submit-button');
+
+    await userEvent.type(titleInput, event.title);
+    await userEvent.type(dateInput, event.date);
+    await userEvent.type(startTimeInput, event.startTime);
+    await userEvent.type(endTimeInput, event.endTime);
+    await userEvent.type(desciptionInput, event.description);
+    await userEvent.type(locationInput, event.location);
+    await userEvent.selectOptions(categorySelect, event.category);
+    await userEvent.selectOptions(notificationSelect, String(event.notificationTime));
+    await userEvent.selectOptions(categorySelect, event.category);
+    await userEvent.click(repeatScheduleCheckBox);
+    // expect(repeatScheduleCheckBox).not.toBeChecked();
+    // expect(checkbox).toBeChecked();
+
+    if (repeatTypeSelect) {
+      await userEvent.selectOptions(repeatTypeSelect, 'daily');
+
+      await userEvent.type(repeatTntervalInput, String(event.repeat.interval));
+
+      if (event.repeat.endDate) {
+        await userEvent.type(repeatEndDateInput, String(event.repeat.endDate));
+      }
+    }
+
+    await userEvent.click(addScheduleButton);
+
+    await waitFor(async () => {
+      const eventListContainer = screen.getByTestId('event-list');
+      expect(await within(eventListContainer).findByText(event.title)).toBeInTheDocument();
+    });
   });
 
   it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {});
