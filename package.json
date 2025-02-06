@@ -13,7 +13,14 @@
     "test:coverage": "vitest run --coverage",
     "build": "tsc -b && vite build",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
