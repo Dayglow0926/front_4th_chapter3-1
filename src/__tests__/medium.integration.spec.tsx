@@ -8,11 +8,11 @@ import App from '../App';
 import { server } from '../setupTests';
 import { Event, EventForm } from '../types';
 import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
-import { setupMockHandlerDeletion } from '../__mocks__/handlersUtils';
+import { setupMockHandlerDeletion, setupMockHandlerUpdating } from '../__mocks__/handlersUtils';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
-  vi.setSystemTime(new Date('2024-10-15 8:50'));
+  vi.setSystemTime(new Date('2024-10-01 8:50'));
 });
 
 afterEach(() => {
@@ -93,6 +93,8 @@ describe('일정 CRUD 및 기본 기능', () => {
   });
 
   it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
+    setupMockHandlerUpdating(events as Event[]);
+
     const updateEventData: Event = {
       ...(events[0] as Event),
       title: '업데이트된 title',
@@ -160,15 +162,58 @@ describe('일정 CRUD 및 기본 기능', () => {
 });
 
 describe('일정 뷰', () => {
-  it('주별 뷰를 선택 후 해당 주에 일정이 없으면, 일정이 표시되지 않는다.', async () => {});
+  it('주별 뷰를 선택 후 해당 주에 일정이 없으면, 일정이 표시되지 않는다.', async () => {
+    renderApp();
 
-  it('주별 뷰 선택 후 해당 일자에 일정이 존재한다면 해당 일정이 정확히 표시된다', async () => {});
+    const viewSelect = screen.getByLabelText('view');
+    await userEvent.selectOptions(viewSelect, 'week');
 
-  it('월별 뷰에 일정이 없으면, 일정이 표시되지 않아야 한다.', async () => {});
+    const weekView = screen.getByTestId('week-view');
+    expect(within(weekView).queryByText(events[0].title)).not.toBeInTheDocument();
+  });
 
-  it('월별 뷰에 일정이 정확히 표시되는지 확인한다', async () => {});
+  it('주별 뷰 선택 후 해당 일자에 일정이 존재한다면 해당 일정이 정확히 표시된다', async () => {
+    renderApp();
 
-  it('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {});
+    const viewSelect = screen.getByLabelText('view');
+    await userEvent.selectOptions(viewSelect, 'week');
+
+    const viewNextButton = screen.getByLabelText('Next');
+    await userEvent.click(viewNextButton);
+    await userEvent.click(viewNextButton);
+
+    const weekView = screen.getByTestId('week-view');
+    expect(within(weekView).getByText(events[0].title)).toBeInTheDocument();
+  });
+
+  it('월별 뷰에 일정이 없면, 일정이 표시되지 않아야 한다.', async () => {
+    renderApp();
+
+    const viewNextButton = screen.getByLabelText('Next');
+    await userEvent.click(viewNextButton);
+
+    const monthView = screen.getByTestId('month-view');
+    expect(within(monthView).queryByText(events[0].title)).not.toBeInTheDocument();
+  });
+
+  it('월별 뷰에 일정이 정확히 표시되는지 확인한다', async () => {
+    renderApp();
+
+    const viewSelect = screen.getByLabelText('view');
+    await userEvent.selectOptions(viewSelect, 'month');
+    const monthView = screen.getByTestId('month-view');
+    expect(within(monthView).getByText(events[0].title)).toBeInTheDocument();
+  });
+
+  it('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {
+    vi.setSystemTime(new Date('2024-01-01 8:50'));
+    renderApp();
+
+    const viewSelect = screen.getByLabelText('view');
+    await userEvent.selectOptions(viewSelect, 'month');
+    const monthView = screen.getByTestId('month-view');
+    expect(within(monthView).getByText('신정')).toBeInTheDocument();
+  });
 });
 
 describe('검색 기능', () => {
