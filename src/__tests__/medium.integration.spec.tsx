@@ -7,6 +7,7 @@ import { ReactElement } from 'react';
 import App from '../App';
 import { server } from '../setupTests';
 import { Event, EventForm } from '../types';
+import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -84,19 +85,81 @@ describe('일정 CRUD 및 기본 기능', () => {
 
     await userEvent.click(addScheduleButton);
 
-    await waitFor(async () => {
+    await act(async () => {
       const eventListContainer = screen.getByTestId('event-list');
       expect(await within(eventListContainer).findByText(event.title)).toBeInTheDocument();
     });
   });
 
-  it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {});
+  it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
+    const updateEventData: Event = {
+      ...(events[0] as Event),
+      title: '업데이트된 title',
+    };
 
-  it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {});
+    const eventListContainer = screen.getByTestId('event-list');
+
+    await waitFor(async () => {
+      expect(await within(eventListContainer).findByText(events[0].title)).toBeInTheDocument();
+      const editButton = within(eventListContainer).getAllByLabelText(/Edit event/i);
+      await userEvent.click(editButton[0]);
+    });
+
+    const titleInput = screen.getByLabelText('제목');
+    const dateInput = screen.getByLabelText('날짜');
+    const startTimeInput = screen.getByLabelText('시작 시간');
+    const endTimeInput = screen.getByLabelText('종료 시간');
+    const desciptionInput = screen.getByLabelText('설명');
+    const locationInput = screen.getByLabelText('위치');
+    const categorySelect = screen.getByLabelText('카테고리');
+
+    const notificationSelect = screen.getByLabelText('알림 설정');
+    const updateScheduleButton = screen.getByTestId('event-submit-button');
+
+    await userEvent.clear(titleInput);
+    await userEvent.type(titleInput, updateEventData.title);
+    await userEvent.clear(dateInput);
+    await userEvent.type(dateInput, updateEventData.date);
+    await userEvent.clear(startTimeInput);
+    await userEvent.type(startTimeInput, updateEventData.startTime);
+    await userEvent.clear(endTimeInput);
+    await userEvent.type(endTimeInput, updateEventData.endTime);
+    await userEvent.clear(desciptionInput);
+    await userEvent.type(desciptionInput, updateEventData.description);
+    await userEvent.clear(locationInput);
+    await userEvent.type(locationInput, updateEventData.location);
+
+    await userEvent.selectOptions(categorySelect, updateEventData.category);
+    await userEvent.selectOptions(notificationSelect, String(updateEventData.notificationTime));
+
+    await userEvent.click(updateScheduleButton);
+
+    await act(async () => {
+      expect(
+        await within(eventListContainer).findByText(updateEventData.title)
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {
+    // handlersUtils 함순 추가예정
+    const eventListContainer = screen.getByTestId('event-list');
+
+    await waitFor(async () => {
+      expect(await within(eventListContainer).findByText(events[0].title)).toBeInTheDocument();
+    });
+
+    const deleteButton = within(eventListContainer).getAllByLabelText(/Delete event/i);
+    await userEvent.click(deleteButton[0]);
+
+    await act(async () => {
+      expect(within(eventListContainer).queryByText(events[0].title)).not.toBeInTheDocument();
+    });
+  });
 });
 
 describe('일정 뷰', () => {
-  it('주별 뷰를 선택 후 해당 주에 일정이 없으면, 일정이 표시되지 않는다.', async () => {});
+  it('주별 뷰를 선택 후ただ일에 일정이 없면, 일정이 표시되지 않는다.', async () => {});
 
   it('주별 뷰 선택 후 해당 일자에 일정이 존재한다면 해당 일정이 정확히 표시된다', async () => {});
 
