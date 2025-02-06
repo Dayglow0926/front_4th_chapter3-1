@@ -1,3 +1,5 @@
+import { http, HttpResponse } from 'msw';
+import { server } from '../setupTests';
 import { Event } from '../types';
 
 // ! Hard
@@ -7,4 +9,24 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {};
 
 export const setupMockHandlerUpdating = () => {};
 
-export const setupMockHandlerDeletion = () => {};
+export const setupMockHandlerDeletion = (initEvents = [] as Event[]) => {
+  const mockEvents = [...initEvents];
+
+  server.use(
+    http.get(`/api/events`, () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+    http.delete(`/api/events/:id`, ({ params }) => {
+      const eventId = params.id;
+      const index = mockEvents.findIndex((event) => event.id === eventId);
+
+      if (index !== -1) {
+        mockEvents.splice(index, 1);
+      } else {
+        return HttpResponse.error();
+      }
+
+      return new HttpResponse();
+    })
+  );
+};

@@ -8,6 +8,7 @@ import App from '../App';
 import { server } from '../setupTests';
 import { Event, EventForm } from '../types';
 import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
+import { setupMockHandlerDeletion } from '../__mocks__/handlersUtils';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -142,7 +143,7 @@ describe('일정 CRUD 및 기본 기능', () => {
   });
 
   it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {
-    // handlersUtils 함순 추가예정
+    setupMockHandlerDeletion(events as Event[]);
     const eventListContainer = screen.getByTestId('event-list');
 
     await waitFor(async () => {
@@ -159,7 +160,7 @@ describe('일정 CRUD 및 기본 기능', () => {
 });
 
 describe('일정 뷰', () => {
-  it('주별 뷰를 선택 후ただ일에 일정이 없면, 일정이 표시되지 않는다.', async () => {});
+  it('주별 뷰를 선택 후 해당 주에 일정이 없으면, 일정이 표시되지 않는다.', async () => {});
 
   it('주별 뷰 선택 후 해당 일자에 일정이 존재한다면 해당 일정이 정확히 표시된다', async () => {});
 
