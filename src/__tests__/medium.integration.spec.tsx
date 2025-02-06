@@ -8,7 +8,11 @@ import App from '../App';
 import { server } from '../setupTests';
 import { Event, EventForm } from '../types';
 import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
-import { setupMockHandlerDeletion, setupMockHandlerUpdating } from '../__mocks__/handlersUtils';
+import {
+  setupMockHandlerCreation,
+  setupMockHandlerDeletion,
+  setupMockHandlerUpdating,
+} from '../__mocks__/handlersUtils';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -217,11 +221,91 @@ describe('일정 뷰', () => {
 });
 
 describe('검색 기능', () => {
-  it('검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {});
+  it('검색 결과가 없면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {
+    vi.setSystemTime(new Date('2024-01-01 8:50'));
+    renderApp();
 
-  it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {});
+    const eventListContainer = screen.getByTestId('event-list');
+    const searchInput = within(eventListContainer).getByPlaceholderText('검색어를 입력하세요');
 
-  it('검색어를 지우면 모든 일정이 다시 표시되어야 한다', async () => {});
+    await userEvent.type(searchInput, '팀 회의');
+
+    expect(within(eventListContainer).getByText('검색 결과가 없습니다.')).toBeInTheDocument();
+  });
+
+  it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {
+    const newEvents: Event[] = [
+      {
+        id: '1',
+        title: '새로운 팀 회의',
+        date: '2024-10-17',
+        startTime: '11:00',
+        endTime: '12:00',
+        description: '기존 팀 미팅',
+        location: '회의실 B',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+    ];
+
+    setupMockHandlerCreation(newEvents as Event[]);
+
+    renderApp();
+
+    const eventListContainer = screen.getByTestId('event-list');
+    const searchInput = within(eventListContainer).getByPlaceholderText('검색어를 입력하세요');
+
+    await userEvent.type(searchInput, '팀 회의');
+
+    expect(within(eventListContainer).getByText('새로운 팀 회의')).toBeInTheDocument();
+  });
+
+  it('검색어를 지우면 모든 일정이 다시 표시되어야 한다', async () => {
+    const newEvents: Event[] = [
+      {
+        id: '1',
+        title: '새로운 팀 회의',
+        date: '2024-10-17',
+        startTime: '11:00',
+        endTime: '12:00',
+        description: '기존 팀 미팅',
+        location: '회의실 B',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+      {
+        id: '2',
+        title: '기존회의',
+        date: '2024-10-17',
+        startTime: '11:00',
+        endTime: '12:00',
+        description: '기존 팀 미팅',
+        location: '회의실 B',
+        category: '업무',
+        repeat: { type: 'none', interval: 0 },
+        notificationTime: 10,
+      },
+    ];
+
+    setupMockHandlerCreation(newEvents as Event[]);
+
+    renderApp();
+
+    const eventListContainer = screen.getByTestId('event-list');
+    const searchInput = within(eventListContainer).getByPlaceholderText('검색어를 입력하세요');
+
+    await userEvent.type(searchInput, '팀 회의');
+
+    expect(within(eventListContainer).getByText('새로운 팀 회의')).toBeInTheDocument();
+    expect(within(eventListContainer).queryByText('기존회의')).not.toBeInTheDocument();
+
+    await userEvent.clear(searchInput);
+
+    expect(within(eventListContainer).getByText('새로운 팀 회의')).toBeInTheDocument();
+    expect(within(eventListContainer).getByText('기존회의')).toBeInTheDocument();
+  });
 });
 
 describe('일정 충돌', () => {
