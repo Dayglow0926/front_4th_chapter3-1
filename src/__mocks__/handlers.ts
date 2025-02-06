@@ -10,9 +10,38 @@ export const handlers = [
     return HttpResponse.json({ events });
   }),
 
-  http.post('/api/events', async ({ request }) => {}),
+  http.post('/api/events', async ({ request }) => {
+    const event = (await request.json()) as Event;
+    event.id = String(events.length + 1);
+    events.push(event);
+    return new HttpResponse();
+  }),
 
-  http.put('/api/events/:id', async () => {}),
+  http.put('/api/events/:id', async ({ params, request }) => {
+    const eventId = params.id as string;
+    const updateEventData = (await request.json()) as Event;
 
-  http.delete('/api/events/:id', ({ params }) => {}),
+    const index = events.findIndex((event) => event.id === eventId);
+
+    if (index !== -1) {
+      events[index] = { ...events[index], ...updateEventData };
+    } else {
+      return HttpResponse.error();
+    }
+
+    return new HttpResponse();
+  }),
+
+  http.delete('/api/events/:id', ({ params }) => {
+    const eventId = params.id;
+    const index = events.findIndex((event) => event.id === eventId);
+
+    if (index !== -1) {
+      events.splice(index, 1);
+    } else {
+      return HttpResponse.error();
+    }
+
+    return new HttpResponse();
+  }),
 ];
