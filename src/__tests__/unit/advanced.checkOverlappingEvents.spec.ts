@@ -1,16 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { Event } from '../../types';
 import { checkOverlappingEvents } from '../../utils/checkOverlappingEvents';
 
 describe('checkOverlappingEvents', () => {
-  let setOverlappingEvents: any;
-  let setIsOverlapDialogOpen: any;
-
-  beforeEach(() => {
-    setOverlappingEvents = vi.fn();
-    setIsOverlapDialogOpen = vi.fn();
-  });
+  const setOverlappingEvents = vi.fn();
+  const setIsOverlapDialogOpen = vi.fn();
 
   const existingEvents: Event[] = [
     {

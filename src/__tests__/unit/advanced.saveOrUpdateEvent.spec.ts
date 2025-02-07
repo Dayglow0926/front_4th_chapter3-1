@@ -1,16 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { Event } from '../../types';
 import { saveOrUpdateEvent } from '../../utils/saveOrUpdateEvent';
 
 describe('saveOrUpdateEvent', () => {
-  let mockSaveEvent: any;
-  let mockResetForm: any;
-
-  beforeEach(() => {
-    mockSaveEvent = vi.fn();
-    mockResetForm = vi.fn();
-  });
+  const mockSaveEvent = vi.fn();
+  const mockResetForm = vi.fn();
 
   it('📌 saveEvent가 실행된 후 resetForm이 호출되는지 확인', async () => {
     const eventData: Event = {
