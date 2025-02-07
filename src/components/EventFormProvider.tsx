@@ -1,11 +1,15 @@
-import { createContext, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useEventForm } from '../hooks/useEventForm';
 
 const EventFormContext = createContext<ReturnType<typeof useEventForm>>(
   {} as ReturnType<typeof useEventForm>
 );
 
-export const EventFormProvider = ({ children }) => {
+interface EventFormProviderProps {
+  children: React.ReactNode;
+}
+
+export const EventFormProvider = ({ children }: EventFormProviderProps) => {
   const eventForm = useEventForm();
 
   return <EventFormContext.Provider value={eventForm}>{children}</EventFormContext.Provider>;
