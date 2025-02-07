@@ -12,12 +12,13 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { getTimeErrorMessage } from '../utils/timeValidation';
-import { useEventForm } from '../hooks/useEventForm';
 import { EventForm, Event, RepeatType } from '../types';
-import { findOverlappingEvents } from '../utils/eventOverlap';
 import React from 'react';
 import { categories, notificationOptions } from '../constants';
 import { useEventFormContext } from './EventFormProvider';
+import { validateEventData } from '../utils/validateEventData';
+import { checkOverlappingEvents } from '../utils/checkOverlappingEvents';
+import { saveOrUpdateEvent } from '../utils/saveOrUpdateEvent';
 
 interface EventFormComponentProps {
   events: Event[];
@@ -66,23 +67,17 @@ const EventFormComponent = ({
   } = useEventFormContext();
 
   const addOrUpdateEvent = async () => {
-    if (!title || !date || !startTime || !endTime) {
-      toast({
-        title: '필수 정보를 모두 입력해주세요.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
-    if (startTimeError || endTimeError) {
-      toast({
-        title: '시간 설정을 확인해주세요.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+    if (
+      !validateEventData({
+        title,
+        date,
+        startTime,
+        endTime,
+        startTimeError,
+        endTimeError,
+        toast,
+      })
+    ) {
       return;
     }
 
@@ -103,15 +98,11 @@ const EventFormComponent = ({
       notificationTime,
     };
 
-    const overlapping = findOverlappingEvents(eventData, events);
-
-    if (overlapping.length > 0) {
-      setOverlappingEvents(overlapping);
-      setIsOverlapDialogOpen(true);
-    } else {
-      await saveEvent(eventData);
-      resetForm();
+    if (!checkOverlappingEvents(eventData, events, setOverlappingEvents, setIsOverlapDialogOpen)) {
+      return;
     }
+
+    await saveOrUpdateEvent(eventData, saveEvent, resetForm);
   };
 
   return (
