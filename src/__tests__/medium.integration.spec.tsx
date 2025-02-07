@@ -1,18 +1,15 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { render, screen, within, act, waitFor, cleanup } from '@testing-library/react';
-import { UserEvent, userEvent } from '@testing-library/user-event';
-import { http, HttpResponse } from 'msw';
-import { ReactElement } from 'react';
+import { userEvent } from '@testing-library/user-event';
 
-import App from '../App';
-import { server } from '../setupTests';
-import { Event, EventForm } from '../types';
-import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
 import {
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
   setupMockHandlerUpdating,
 } from '../__mocks__/handlersUtils';
+import { events } from '../__mocks__/response/events.json' assert { type: 'json' };
+import App from '../App';
+import { Event, EventForm } from '../types';
 
 beforeEach(() => {
   vi.setSystemTime(new Date('2024-10-01 8:50'));

@@ -12,6 +12,7 @@ import {
   HStack,
   Text,
 } from '@chakra-ui/react';
+
 import { weekDays } from '../constants';
 import { Event } from '../types';
 import { formatWeek, getWeekDates } from '../utils/dateUtils';

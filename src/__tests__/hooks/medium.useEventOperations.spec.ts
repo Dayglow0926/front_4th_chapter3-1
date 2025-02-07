@@ -6,11 +6,10 @@ import {
   setupMockHandlerDeletion,
   setupMockHandlerUpdating,
 } from '../../__mocks__/handlersUtils.ts';
-
+import { events } from '../../__mocks__/response/events.json';
 import { useEventOperations } from '../../hooks/useEventOperations.ts';
 import { server } from '../../setupTests.ts';
-import { Event, EventForm } from '../../types.ts';
-import { events } from '../../__mocks__/response/events.json';
+import { Event } from '../../types.ts';
 
 // vi.fn : 가짜함수 생성 ( 모킹 )
 const fakeToast = vi.fn();
@@ -103,13 +102,9 @@ it('존재하는 이벤트 삭제 시 에러없이 아이템이 삭제된다.', 
 });
 
 it("이벤트 로딩 실패 시 '이벤트 로딩 실패'라는 텍스트와 함께 에러 토스트가 표시되어야 한다", async () => {
-  server.use(
-    http.get('/api/events', () => {
-      return HttpResponse.error();
-    })
-  );
+  server.use(http.get('/api/events', () => HttpResponse.error()));
 
-  const { result } = renderHook(() => useEventOperations(false));
+  renderHook(() => useEventOperations(false));
 
   await waitFor(() => {
     expect(fakeToast).toHaveBeenCalledWith({

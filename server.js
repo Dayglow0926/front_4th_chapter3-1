@@ -6,6 +6,8 @@ import path from 'path';
 import express from 'express';
 
 const app = express();
+app.disable('x-powered-by');
+
 const port = 3000;
 const __dirname = path.resolve();
 

@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { validateEventData } from '../../utils/validateEventData';
 import { useToast } from '@chakra-ui/react';
+import { describe, it, expect, vi } from 'vitest';
+
+import { validateEventData } from '../../utils/validateEventData';
 
 const fakeToast = vi.fn();
 

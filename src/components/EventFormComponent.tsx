@@ -11,14 +11,15 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react';
-import { getTimeErrorMessage } from '../utils/timeValidation';
-import { EventForm, Event, RepeatType } from '../types';
 import React from 'react';
+
 import { categories, notificationOptions } from '../constants';
+import { EventForm, Event, RepeatType } from '../types';
 import { useEventFormContext } from './EventFormProvider';
-import { validateEventData } from '../utils/validateEventData';
 import { checkOverlappingEvents } from '../utils/checkOverlappingEvents';
 import { saveOrUpdateEvent } from '../utils/saveOrUpdateEvent';
+import { getTimeErrorMessage } from '../utils/timeValidation';
+import { validateEventData } from '../utils/validateEventData';
 
 interface EventFormComponentProps {
   events: Event[];

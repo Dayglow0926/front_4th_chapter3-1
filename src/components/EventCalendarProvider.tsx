@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from 'react';
+
 import { useCalendarView } from '../hooks/useCalendarView';
 
 const EventCalendarContext = createContext<ReturnType<typeof useCalendarView>>(

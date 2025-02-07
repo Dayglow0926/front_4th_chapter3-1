@@ -23,15 +23,15 @@ import {
 } from '@chakra-ui/react';
 import { useRef, useState } from 'react';
 
+import EventCalendarComponent from '../components/EventCalendarComponent.tsx';
+import EventFormComponent from '../components/EventFormComponent.tsx';
+import { useEventFormContext } from '../components/EventFormProvider.tsx';
+import { notificationOptions } from '../constants/index.ts';
 import { useCalendarView } from '../hooks/useCalendarView.ts';
 import { useEventOperations } from '../hooks/useEventOperations.ts';
 import { useNotifications } from '../hooks/useNotifications.ts';
 import { useSearch } from '../hooks/useSearch.ts';
 import { Event } from '../types';
-import EventFormComponent from '../components/EventFormComponent.tsx';
-import { notificationOptions } from '../constants/index.ts';
-import { useEventFormContext } from '../components/EventFormProvider.tsx';
-import EventCalendarComponent from '../components/EventCalendarComponent.tsx';
 
 function EventCalendarPage() {
   const {
@@ -63,6 +63,10 @@ function EventCalendarPage() {
   const [isOverlapDialogOpen, setIsOverlapDialogOpen] = useState(false);
   const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
   const cancelRef = useRef<HTMLButtonElement>(null);
+
+  const removeNotification = (index: number) => {
+    setNotifications((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <Box w="full" h="100vh" m="auto" p={5}>
@@ -219,9 +223,7 @@ function EventCalendarPage() {
               <Box flex="1">
                 <AlertTitle fontSize="sm">{notification.message}</AlertTitle>
               </Box>
-              <CloseButton
-                onClick={() => setNotifications((prev) => prev.filter((_, i) => i !== index))}
-              />
+              <CloseButton onClick={() => removeNotification(index)} />
             </Alert>
           ))}
         </VStack>

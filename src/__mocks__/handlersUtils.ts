@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw';
+
 import { server } from '../setupTests';
 import { Event } from '../types';
 
@@ -9,9 +10,7 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
   const mockEvents = [...initEvents];
 
   server.use(
-    http.get('/api/events', () => {
-      return HttpResponse.json({ events: mockEvents });
-    }),
+    http.get('/api/events', () => HttpResponse.json({ events: mockEvents })),
 
     http.post('/api/events', async ({ request }) => {
       const event = (await request.json()) as Event;
@@ -26,9 +25,7 @@ export const setupMockHandlerUpdating = (initEvents = [] as Event[]) => {
   const mockEvents = [...initEvents];
 
   server.use(
-    http.get(`/api/events`, () => {
-      return HttpResponse.json({ events: mockEvents });
-    }),
+    http.get(`/api/events`, () => HttpResponse.json({ events: mockEvents })),
     http.put('/api/events/:id', async ({ params, request }) => {
       const eventId = params.id as string;
       const updateEventData = (await request.json()) as Event;
@@ -50,9 +47,7 @@ export const setupMockHandlerDeletion = (initEvents = [] as Event[]) => {
   const mockEvents = [...initEvents];
 
   server.use(
-    http.get(`/api/events`, () => {
-      return HttpResponse.json({ events: mockEvents });
-    }),
+    http.get(`/api/events`, () => HttpResponse.json({ events: mockEvents })),
     http.delete(`/api/events/:id`, ({ params }) => {
       const eventId = params.id;
       const index = mockEvents.findIndex((event) => event.id === eventId);
